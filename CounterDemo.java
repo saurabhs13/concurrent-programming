@@ -1,5 +1,8 @@
 /**
  * Program to demonstrate data race concept.
+ * This program also shows that count++ is not an atomic operation
+ * because it involves three operations reading the count value, incrementing the value by 1
+ * and then writing the result back to memory.
  */
 class CounterThread extends Thread{
 
