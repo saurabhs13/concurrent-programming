@@ -13,7 +13,7 @@ class CounterThread extends Thread{
      * Pitfall: if this non static synchronized method is used it will
      * lead to same issues as an unsynchronized access. Because here the lock will
      * not be aquired for the CounterThread.class object rather individual instance 
-     * level and hence will not have the desired result.
+     * level and hence will not have the desired result.git add
      */
    /*  public synchronized void  incrementCount(){
         count++;
@@ -21,12 +21,29 @@ class CounterThread extends Thread{
     public void run(){
         System.out.println(Thread.currentThread().getName()+ " is executing");
         for(int i=1;i<=10000;i++){
-            incrementCount();
+            //uncomment this if you want to try synchronized method prototype.
+        //    incrementCount();
+            synchronized (CounterThread.class) {
+                count++;
+            }
             
         }
     }
+    /**
+     * Pitfall:Synchronized block sunchronizes on the current object instance.
+     * Hence this will not solve the data race issue and will not lead to correct count.
+     */
+   /*  public void run(){
+
+        System.out.println(Thread.currentThread().getName()+ " is executing");
+        for(int i=1;i<=10000;i++){
+            synchronized (this) {
+                count++;
+            }
+        }
+    }*/
 }
-public class SynchronizedMethodDemo{
+public class SynchronizedKeywordDemo{
 
     public static void main(String[] args) {
 
