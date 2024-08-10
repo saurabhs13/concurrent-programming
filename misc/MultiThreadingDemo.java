@@ -6,6 +6,7 @@
 class InfinitelyRunningThread extends Thread{
 
     public void run(){
+        System.out.println(Thread.currentThread().getName());
         while (true) { }
     }
 }
@@ -33,5 +34,6 @@ public class MultiThreadingDemo{
         System.out.format("  Process ID: %d\n",ProcessHandle.current().pid());
         System.out.format("  Thread Count: %d\n",Thread.activeCount());
         System.out.format("  Memory Usage: %d KB\n",usedKB);
+        System.out.println(Thread.currentThread().getName());
     }
 }
