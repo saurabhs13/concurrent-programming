@@ -1,2 +1,2 @@
 # concurrent-programming
-Repository with prototypes demonstrating concurrent programming concepts.
+Repository with programs demonstrating concurrent programming concepts.
