@@ -5,7 +5,7 @@ class TankFillerThread extends Thread{
     private static int maxTankVolume = 25;
     private static int currentTankVolume = 0;
     private int waterBuckets = 0;
-    ReentrantLock tankLock = new ReentrantLock();
+    private static ReentrantLock tankLock = new ReentrantLock();
     public TankFillerThread(String name){
         this.setName(name);
     }
@@ -15,21 +15,23 @@ class TankFillerThread extends Thread{
      * the execution time for version of code to fill the tank
      * is approx. 6-8 seconds.
      */
-  /*   public void run(){
+   /*  public void run(){
         while(currentTankVolume < maxTankVolume){
             if(waterBuckets>0){
                 try {
-                    tankRoom.lock();
+                    tankLock.lock();
                     currentTankVolume = currentTankVolume+waterBuckets;
+                    System.out.println(this.getName()+" added "+waterBuckets+" bucket(s) of water into tank");
                     waterBuckets = 0;
                     Thread.sleep(300);
                 }  catch (InterruptedException ex) {
                     ex.printStackTrace();
                 }finally {
-                    tankRoom.unlock();
+                    tankLock.unlock();
                 }
             }else{
                 waterBuckets++;
+                System.out.println(this.getName()+" fetched "+waterBuckets+" bucket(s) of water.");
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException ex) {
@@ -37,14 +39,13 @@ class TankFillerThread extends Thread{
                 }
             }
         }
-    }*/
+    } */
 
     /**
-     * Try lock version of run method which is supposed to execute faster but it doesn't
-     * execute faster than the lock version.
-     * TODO: Figure out what's happening here.
+     * Try lock version of run method executes in approx. 2 seconds so 3X faster.
+     * 
      */
-  /*  */ public void run(){
+    public void run(){
         while(currentTankVolume < maxTankVolume){
             if((waterBuckets>0) && tankLock.tryLock()){
                 try {
@@ -67,7 +68,7 @@ class TankFillerThread extends Thread{
                 }
             }
         }
-    }/**/
+    }
 }
 
 public class TryLockDemo{
