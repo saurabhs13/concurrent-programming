@@ -21,7 +21,7 @@ class TimerThread extends Thread{
         while(totalUpdates<10){
             if(this.getName().contains("Writer")){
                 try {
-                    System.out.println(this.getName() + " trying to acquire write lock.");
+                  //  System.out.println(this.getName() + " trying to acquire write lock.");
                     writeLock.lock();
                     System.out.println(this.getName() + " acquired write lock.");
                     currentTimeMillis = System.currentTimeMillis();
