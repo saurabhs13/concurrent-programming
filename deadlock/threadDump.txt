@@ -162,4 +162,3 @@ Java stack information for the threads listed above:
 	at Philosopher.run(DeadlockDemo.java:19)
 
 Found 1 deadlock.
-
