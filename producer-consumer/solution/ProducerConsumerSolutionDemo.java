@@ -28,6 +28,7 @@ class CustomLinkedBoundedQueue{
        return node;
    }
    public void put(int data) throws InterruptedException{
+        boolean wasEmpty = false;
         putLock.lock();
         while(queueLength.get()==capacity){
             System.out.println("Waiting to put items in the queue as it's full");
@@ -36,6 +37,7 @@ class CustomLinkedBoundedQueue{
         try {
             if(head ==null){
                 head = createNode(data);
+                wasEmpty = true;
                 queueLength.getAndIncrement();
                 System.out.format("\n Adding value %d to queue",data);
                 System.out.println(" Current Queue Length = "+queueLength.get());
@@ -57,10 +59,14 @@ class CustomLinkedBoundedQueue{
 
             putLock.unlock();
         }
-        signalNotEmpty();
+        if(wasEmpty){
+            signalNotEmpty();
+
+        }
        
    }
    public Node take() throws InterruptedException{
+        boolean wasFull = false;
         takeLock.lock();
         Node current;
         while(queueLength.get() ==0){
@@ -68,6 +74,9 @@ class CustomLinkedBoundedQueue{
             notEmpty.await();
         }
         try {
+                if(queueLength.get() == capacity){
+                    wasFull = true;
+                }
                 current = head;
                 head = head.next;
                 queueLength.getAndDecrement();
@@ -77,7 +86,9 @@ class CustomLinkedBoundedQueue{
         } finally {
             takeLock.unlock();
         }
-        signalNotFull();
+        if (wasFull) {
+            signalNotFull();
+        }
         return current;
    }
 
