@@ -186,7 +186,7 @@ public class ProducerConsumerSolutionDemo{
        CustomLinkedBoundedQueue queue = 
            new CustomLinkedBoundedQueue(capacity);
        int startValue = 0;
-       for(int i=0;i<10;i++){
+       for(int i=0;i<1000;i++){
         ProducerThread pt = new ProducerThread(queue,capacity,startValue);
         ConsumerThread ct = new ConsumerThread(queue,capacity);
         pt.start();
