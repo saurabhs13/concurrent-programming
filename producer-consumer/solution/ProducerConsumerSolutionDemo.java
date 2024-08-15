@@ -13,7 +13,7 @@ class CustomLinkedBoundedQueue{
 
    Lock putLock = new ReentrantLock(true);
    Condition notFull = putLock.newCondition();
-   Lock takeLock = new ReentrantLock();
+   Lock takeLock = new ReentrantLock(true);
    Condition notEmpty = takeLock.newCondition(); 
 
    public CustomLinkedBoundedQueue(){
