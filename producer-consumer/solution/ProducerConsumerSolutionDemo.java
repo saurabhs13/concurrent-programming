@@ -11,7 +11,7 @@ class CustomLinkedBoundedQueue{
    int capacity;
    AtomicInteger queueLength = new AtomicInteger(0);
 
-   Lock putLock = new ReentrantLock();
+   Lock putLock = new ReentrantLock(true);
    Condition notFull = putLock.newCondition();
    Lock takeLock = new ReentrantLock();
    Condition notEmpty = takeLock.newCondition(); 
@@ -95,7 +95,9 @@ class CustomLinkedBoundedQueue{
     private void signalNotEmpty() {
         takeLock.lock();
         try {
-            notEmpty.signal();
+            System.out.println("Queue Length = "+ queueLength.get()+" Signaling not empty");
+            notEmpty.signalAll();
+          
         } finally {
             takeLock.unlock();
         }
@@ -105,7 +107,9 @@ class CustomLinkedBoundedQueue{
     private void signalNotFull() {
         putLock.lock();
         try {
-            notFull.signal();
+            System.out.println("Queue Length = "+ queueLength.get()+" Signaling not full");
+            notFull.signalAll();
+           
         } finally {
             putLock.unlock();
         }
@@ -182,7 +186,7 @@ public class ProducerConsumerSolutionDemo{
        CustomLinkedBoundedQueue queue = 
            new CustomLinkedBoundedQueue(capacity);
        int startValue = 0;
-       for(int i=0;i<5;i++){
+       for(int i=0;i<10;i++){
         ProducerThread pt = new ProducerThread(queue,capacity,startValue);
         ConsumerThread ct = new ConsumerThread(queue,capacity);
         pt.start();
