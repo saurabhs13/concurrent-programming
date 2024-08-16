@@ -3,8 +3,12 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 class Node{
-    int data;
+    Integer data;
     Node next;
+
+    Node(Integer data){
+        this.data = data;
+    }
 }
 class CustomLinkedBoundedQueue{
    Node head;
@@ -21,82 +25,88 @@ class CustomLinkedBoundedQueue{
    }
    public CustomLinkedBoundedQueue(int capacity){
        this.capacity = capacity;
+       head = new Node(null);
    }
-   private Node createNode(int data){
-       Node node = new Node();
+   private Node createNode(Integer data){
+       Node node = new Node(data);
        node.data = data;
        return node;
    }
    public void put(int data) throws InterruptedException{
-        boolean wasEmpty = false;
+        
+        int c = -1;
         putLock.lock();
         while(queueLength.get()==capacity){
             System.out.println("Waiting to put items in the queue as it's full");
             notFull.await();
         }
+        Node h = head;
         try {
-            if(head ==null){
-                head = createNode(data);
-                wasEmpty = true;
-                queueLength.getAndIncrement();
+            if(h.data ==null){
+                h.data = data;
+                c = queueLength.getAndIncrement();
                 System.out.format("\n Adding value %d to queue",data);
-                System.out.println(" Current Queue Length = "+queueLength.get());
-               
-            }else if(queueLength.get()<capacity){
-                Node current = head;
-                while(current.next !=null){
-                    current = current.next;
-                }
-                current.next = createNode(data);
-                queueLength.getAndIncrement();
-                System.out.format("\n Adding value %d to queue",data);
-                System.out.println(" Current Queue Length = "+queueLength.get());
+                System.out.println(" Current Queue Length = "+c+1);
                
             }else{
-               throw new RuntimeException("Queue is full");
+                while(h.next !=null){
+                    h = h.next;
+                }
+                h.next = createNode(data);
+                c = queueLength.getAndIncrement();
+                System.out.format("\n Adding value %d to queue",data);
+                System.out.println(" Current Queue Length = "+c+1);
+                if(c+1 < capacity){
+                    notFull.signal();
+                }
             }
         } finally {
 
             putLock.unlock();
         }
-        if(wasEmpty){
+        if(c ==0){
             signalNotEmpty();
 
         }
        
    }
-   public Node take() throws InterruptedException{
-        boolean wasFull = false;
+   public Integer take() throws InterruptedException{
+        int c = -1;
         takeLock.lock();
-        Node current;
+        int item = -1;
+        AtomicInteger queueLength = this.queueLength;
         while(queueLength.get() ==0){
             System.out.println("Waiting to take item from the queue as it's empty");
             notEmpty.await();
         }
         try {
-                if(queueLength.get() == capacity){
-                    wasFull = true;
+                Node current = head;
+                item = current.data;
+                Node first = head.next;
+                if(null == first){
+                    head = createNode(null);
                 }
-                current = head;
-                head = head.next;
-                queueLength.getAndDecrement();
+                c = queueLength.getAndDecrement();
                 System.out.println(" Removed element "+current.data+" from queue");
                 System.out.println(" Current Queue Length = "+queueLength.get());
+                if(c > 1){
+                    notEmpty.signal();
+                }
                 
         } finally {
             takeLock.unlock();
         }
-        if (wasFull) {
+        if (c == capacity) {
             signalNotFull();
         }
-        return current;
+        return item;
    }
 
     private void signalNotEmpty() {
         takeLock.lock();
         try {
             System.out.println("Queue Length = "+ queueLength.get()+" Signaling not empty");
-            notEmpty.signalAll();
+            notEmpty.signal();
           
         } finally {
             takeLock.unlock();
@@ -108,7 +118,7 @@ class CustomLinkedBoundedQueue{
         putLock.lock();
         try {
             System.out.println("Queue Length = "+ queueLength.get()+" Signaling not full");
-            notFull.signalAll();
+            notFull.signal();
            
         } finally {
             putLock.unlock();
@@ -171,7 +181,7 @@ class ConsumerThread extends Thread{
    public void run(){
        for(int i=0;i<this.capacity;i++){
            try {
-               Node n = this.queue.take();
+               int n = this.queue.take();
           //     System.out.println(" Removed element "+n.data+" from queue");
            } catch (InterruptedException ex) {
                 ex.printStackTrace();
