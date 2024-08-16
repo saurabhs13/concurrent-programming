@@ -74,7 +74,6 @@ class CustomLinkedBoundedQueue{
         int c = -1;
         takeLock.lock();
         int item = -1;
-        AtomicInteger queueLength = this.queueLength;
         while(queueLength.get() ==0){
             System.out.println("Waiting to take item from the queue as it's empty");
             notEmpty.await();
@@ -82,9 +81,11 @@ class CustomLinkedBoundedQueue{
         try {
                 Node current = head;
                 item = current.data;
-                Node first = head.next;
-                if(null == first){
+                Node newHead = head.next;
+                if(null == newHead){
                     head = createNode(null);
+                }else{
+                    head = newHead;
                 }
                 c = queueLength.getAndDecrement();
                 System.out.println(" Removed element "+current.data+" from queue");
@@ -192,11 +193,11 @@ class ConsumerThread extends Thread{
 }
 public class ProducerConsumerSolutionDemo{
    public static void main(String[] args) throws InterruptedException{
-       int capacity = 100;
+       int capacity = 10;
        CustomLinkedBoundedQueue queue = 
            new CustomLinkedBoundedQueue(capacity);
        int startValue = 0;
-       for(int i=0;i<1000;i++){
+       for(int i=0;i<5;i++){
         ProducerThread pt = new ProducerThread(queue,capacity,startValue);
         ConsumerThread ct = new ConsumerThread(queue,capacity);
         pt.start();
