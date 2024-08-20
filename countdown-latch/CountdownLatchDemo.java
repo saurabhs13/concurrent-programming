@@ -8,7 +8,6 @@ class ConferenceCall extends Thread{
 
     public void run(){
         try {
-
             System.out.println(this.getName()+" waiting for everyone to join to start the call");
             latch.countDown();
             latch.await();
